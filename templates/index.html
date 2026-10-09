@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090d18">
+  <title>KANV — Voice Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="KANV home"><span class="brand-mark"><span></span><span></span><span></span></span><span>KANV</span></a>
+      <div class="status"><span class="status-dot"></span><span id="statusText">SYSTEM READY</span></div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow"><span class="eyebrow-line"></span> YOUR PERSONAL AI ASSISTANT</div>
+      <h1>Speak your mind.<br><span>I'll take it from here.</span></h1>
+      <p class="subtitle">A voice-first assistant, powered by Python and built for your browser.</p>
+
+      <div class="voice-stage">
+        <div class="orbit orbit-outer"></div><div class="orbit orbit-inner"></div>
+        <div class="voice-glow" id="voiceGlow"></div>
+        <button id="micButton" class="mic-button" type="button" aria-label="Start voice input">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"></rect><path d="M5.5 10.5v1a6.5 6.5 0 0 0 13 0v-1M12 18v3.5M8.5 21.5h7"></path></svg>
+        </button>
+        <div class="sound-wave" id="soundWave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="listening-label" id="listeningLabel">TAP THE MIC TO START SPEAKING</div>
+      <div class="browser-note" id="browserNote">Voice input works best in Chrome or Microsoft Edge. You can also type a command below.</div>
+
+      <form id="commandForm" class="command-form">
+        <label class="sr-only" for="commandInput">Type a command</label>
+        <input id="commandInput" type="text" maxlength="500" placeholder="Try “list EC2 instances” or “check Docker containers”" autocomplete="off">
+        <button class="send-button" type="submit" aria-label="Send command"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"></path></svg></button>
+      </form>
+
+      <section class="response-card" aria-live="polite">
+        <div class="response-heading"><span class="response-icon">✦</span><span>KANV RESPONSE</span><span class="response-time" id="responseTime"></span></div>
+        <p id="responseText">Hello! I'm KANV. Press the microphone or type a command to get started.</p>
+        <a id="actionLink" class="action-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open result <span>↗</span></a>
+      </section>
+    </section>
+
+    <section class="devops-section">
+      <div class="section-heading"><div><div class="eyebrow small">CLOUD + OPERATIONS</div><h2>AWS &amp; DevOps Console</h2></div><span class="section-caption">READ-ONLY MONITORING</span></div>
+      <p class="devops-intro">Check your local KANV service, inspect Docker containers, or list EC2 instances in your configured AWS region. These actions only read status and metadata.</p>
+      <div class="devops-grid">
+        <button class="devops-card" type="button" data-devops="health"><span class="devops-icon">♥</span><span><b>App health</b><small>Check whether KANV is responding</small></span><span class="chip-arrow">↗</span></button>
+        <button class="devops-card" type="button" data-devops="docker"><span class="devops-icon">▣</span><span><b>Docker containers</b><small>List running and stopped containers</small></span><span class="chip-arrow">↗</span></button>
+        <button class="devops-card" type="button" data-devops="aws"><span class="devops-icon">☁</span><span><b>AWS EC2 instances</b><small>List instance state and type</small></span><span class="chip-arrow">↗</span></button>
+      </div>
+      <div id="devopsResult" class="devops-result" aria-live="polite"><span class="devops-result-dot"></span><span>Choose a monitoring action to view its result.</span></div>
+      <p class="devops-note">AWS uses your local AWS CLI credential chain. Docker monitoring requires Docker Desktop to be running. No start/stop/delete actions are enabled.</p>
+    </section>
+
+    <section class="commands-section">
+      <div class="section-heading"><div><div class="eyebrow small">GET STARTED</div><h2>Things you can ask</h2></div><span class="section-caption">SELECT A SUGGESTION</span></div>
+      <div class="command-grid">
+        <button class="command-chip" data-command="What is the time"><span class="chip-icon">◷</span><span><b>Current time</b><small>Check the local time</small></span><span class="chip-arrow">↗</span></button>
+        <button class="command-chip" data-command="What is the date"><span class="chip-icon">▦</span><span><b>Today's date</b><small>Get today's date</small></span><span class="chip-arrow">↗</span></button>
+        <button class="command-chip" data-command="Tell me a joke"><span class="chip-icon">☺</span><span><b>Tell me a joke</b><small>Take a quick break</small></span><span class="chip-arrow">↗</span></button>
+        <button class="command-chip" data-command="Search Python Flask"><span class="chip-icon">⌕</span><span><b>Search the web</b><small>Find something online</small></span><span class="chip-arrow">↗</span></button>
+        <button class="command-chip" data-command="Wikipedia Ada Lovelace"><span class="chip-icon">◈</span><span><b>Wikipedia</b><small>Get a quick summary</small></span><span class="chip-arrow">↗</span></button>
+        <button class="command-chip" data-command="Open YouTube"><span class="chip-icon">▷</span><span><b>Open a website</b><small>YouTube, Gmail, more</small></span><span class="chip-arrow">↗</span></button>
+        <button class="command-chip" data-command="List EC2 instances"><span class="chip-icon">☁</span><span><b>List EC2</b><small>Inspect AWS instances</small></span><span class="chip-arrow">↗</span></button>
+        <button class="command-chip" data-command="Check Docker containers"><span class="chip-icon">▣</span><span><b>Check Docker</b><small>View container status</small></span><span class="chip-arrow">↗</span></button>
+      </div>
+    </section>
+    <footer><span>BUILT WITH <b>FLASK</b> + <b>WEB SPEECH API</b></span><span>PRIVATE BY DESIGN · RUNNING LOCALLY</span></footer>
+  </main>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
