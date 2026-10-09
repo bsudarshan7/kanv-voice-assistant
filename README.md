@@ -1,118 +1,155 @@
-# KANV — Python Voice Assistant Web App
+# KANV --- AWS & DevOps Voice Assistant
 
-A local Flask web application adapted from the uploaded `kiki` / `MAIN VAI` Python scripts. The UI uses a modern dark theme, browser speech recognition, browser text-to-speech, and a typed-command fallback.
+KANV is a Flask-based web assistant that brings everyday assistant
+commands and practical AWS/DevOps utilities into one simple interface.
+It supports typed commands and browser-based voice interaction, with a
+focus on learning and monitoring cloud infrastructure.
+
+## Features
+
+### Personal assistant
+
+-   Voice input through the browser's Web Speech API, where supported.
+-   Spoken responses through browser speech synthesis.
+-   Date and time information.
+-   Wikipedia lookups.
+-   Open commonly used websites.
+-   Jokes, public IP lookup, and assistant identity responses.
+-   Typed input as an alternative to voice commands.
+
+### AWS and DevOps utilities
+
+-   View EC2 instance inventory and instance states using Boto3.
+-   Retrieve EC2 CPU utilization metrics from Amazon CloudWatch.
+-   List Docker containers through the Docker SDK for Python.
+-   Check the Flask application's health.
+-   Use a web dashboard to access the available assistant and monitoring
+    features.
+
+> AWS and Docker features require the relevant account permissions and
+> runtime access. CloudWatch metrics may not be available for every
+> instance or time range.
+
+## Technology stack
+
+-   Python
+-   Flask
+-   HTML, CSS, and JavaScript
+-   Boto3 and Amazon CloudWatch
+-   Docker SDK for Python
+-   Browser Web Speech API and speech synthesis
+
+## Project structure
+
+``` text
+KANV-Voice-Assistant/
+├── app.py
+├── requirements.txt
+├── aws-readonly-policy.json
+├── templates/
+│   └── index.html
+└── static/
+    ├── script.js
+    └── style.css
+```
 
 ## Requirements
 
-- Windows 11
-- Python 3.10 or newer
-- Google Chrome or Microsoft Edge for voice input
-- Internet connection for Wikipedia, public-IP lookup, browser speech recognition, and AWS API calls
-- AWS CLI configured with a least-privilege profile for EC2/CloudWatch read-only access (optional)
-- Docker Desktop (optional; required only for local container checks)
+-   Python 3.10 or newer
+-   A modern browser for the web interface; voice features depend on
+    browser support
+-   Docker installed and running if you want to use Docker container
+    listing
+-   AWS credentials configured if you want to use AWS monitoring
+    features
 
-## Run it on Windows 11
+## Run locally on Windows
 
-1. Extract the ZIP file to a folder such as `C:\Users\YourName\Documents\KANV-Voice-Assistant`.
-2. Open that folder in File Explorer. Click the address bar, type `cmd`, and press Enter.
-3. Create a virtual environment:
+Open PowerShell in the project directory.
 
-   ```bat
-   py -m venv .venv
-   ```
+1.  Create a virtual environment if you do not already have one:
 
-4. Activate it:
+    ``` powershell
+    py -m venv .venv
+    ```
 
-   ```bat
-   .venv\Scripts\activate
-   ```
+2.  Activate it:
 
-5. Update pip and install dependencies:
+    ``` powershell
+    .\.venv\Scripts\Activate.ps1
+    ```
 
-   ```bat
-   python -m pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
+3.  Install the dependencies:
 
-6. Start the Flask app:
+    ``` powershell
+    python -m pip install -r requirements.txt
+    ```
 
-   ```bat
-   python app.py
-   ```
+4.  Start the Flask application:
 
-7. (Optional, for AWS monitoring) Configure an AWS CLI profile as described in the AWS setup section below. Set the profile and region in the same terminal before starting KANV.
-8. Open `http://127.0.0.1:5000` in Chrome or Edge. Keep the terminal open while using KANV. Press the microphone button and allow microphone access, or type a command in the input box.
-9. Stop the server with `Ctrl+C` in the terminal.
+    ``` powershell
+    python app.py
+    ```
 
-## Supported commands
+5.  Open the local URL printed by Flask in your browser. If the
+    application uses the default Flask development settings, this is
+    commonly `http://127.0.0.1:5000`.
 
-- `What is the time` / `What is the date`
-- `Tell me a joke`
-- `Search Python Flask` (Google results link)
-- `Wikipedia Ada Lovelace` or `Search Wikipedia for machine learning` (short summary plus a Wikipedia link)
-- `Open YouTube`, `Open Google`, `Open Gmail`, `Open Stack Overflow`
-- `Open dictionary resilience`
-- `IP address`
-- `Who are you` / `Who created you`
-- `Check KANV health` — local Flask endpoint health check
-- `List EC2 instances` / `AWS instances` — lists EC2 instances in the configured region (AWS setup required)
-- `AWS CPU for i-0123456789abcdef0` — average CloudWatch CPU utilization for the last hour (replace with your real instance ID)
-- `Check Docker containers` — lists running and stopped local containers (Docker Desktop required)
+Use the Flask development server for local development only. Configure a
+production WSGI server and appropriate security settings before
+deploying publicly.
 
-Commands can be spoken or typed. Web actions return a link for you to click; the app does not automatically open a new tab after an asynchronous request.
+## AWS configuration
 
-## What changed from the original scripts
+KANV uses Boto3's standard credential provider chain. Configure
+credentials using an AWS profile, environment variables, or an attached
+IAM role when running on AWS. Do not put AWS access keys in source code
+or commit them to GitHub.
 
-- Reused the original command ideas for time, date, Wikipedia, websites, jokes, public IP, and assistant identity.
-- Replaced desktop `pyttsx3` output with browser `speechSynthesis`, and replaced server-side `speech_recognition` microphone access with the browser Web Speech API. A Flask server cannot directly listen to the visitor's browser microphone.
-- Removed the hard-coded WhatsApp recipient/message. No message is sent.
-- Removed hard-coded local music and VS Code paths, because those paths may not exist on another Windows account and a web app should not launch local programs or files without an explicit, safe desktop integration.
-- Fixed the original uninitialized recognition-result problem by using browser recognition events, and consolidated the duplicate time handler.
-- Added error handling for Wikipedia and IP lookup, a 500-character command limit, and a typed-input fallback.
+For local development, an AWS CLI profile can be configured with:
 
-## Notes and safety
+``` powershell
+aws configure
+```
 
-- This app is intended for local use on your own computer. It binds to `127.0.0.1`, not all network interfaces.
-- Do not change the server to publicly accessible hosting without adding authentication, rate limiting, and appropriate security controls.
-- Browser voice recognition may send audio to the browser vendor's speech service; check your browser's privacy settings. Typed commands are sent to your local Flask app.
-- The public-IP command makes a request to `https://api.ipify.org`.
-- The included Flask debug server is for development only. Do not use it as a production server.
+Check that the profile can access the AWS account and region you intend
+to monitor. Set the appropriate AWS region in your environment or AWS
+profile if needed.
 
-## AWS monitoring setup (optional)
+The included `aws-readonly-policy.json` is a sample policy for the
+read-only EC2 inventory and CloudWatch metric operations used by the
+project. Review it against the actual code and your organization's
+requirements before attaching it to an IAM identity. Grant only the
+permissions required for your setup.
 
-KANV uses Boto3's standard credential provider chain. It does not collect, save, or ask for AWS access keys in the webpage. Use a dedicated IAM identity/profile with only the permissions you need.
+## Docker configuration
 
-1. Confirm AWS CLI is installed by running `aws --version`.
-2. Create/use a dedicated IAM identity and attach the read-only policy in `aws-readonly-policy.json` (or a stricter equivalent). The policy allows only `ec2:DescribeInstances` and `cloudwatch:GetMetricStatistics`; it does not allow starting, stopping, deleting, or modifying EC2 resources.
-3. Configure a local profile in Command Prompt:
+Docker container listing requires Docker to be installed and running on
+the machine where the Flask backend executes. The Docker SDK
+communicates with that Docker daemon; it does not automatically inspect
+containers on a different computer or remote host.
 
-   ```bat
-   aws configure --profile kanv-readonly
-   set AWS_PROFILE=kanv-readonly
-   set AWS_REGION=ap-south-1
-   ```
+## Security notes
 
-   Enter credentials only into the trusted AWS CLI prompt. Never paste them into chat, HTML, JavaScript, or `app.py`. If you use another region, replace `ap-south-1`.
-4. Start KANV from that same terminal using `python app.py`.
-5. Click **AWS EC2 instances**. If your instances are in a different region, change `AWS_REGION` and restart the app.
-6. To query CPU, copy an instance ID from the list and type a command such as `AWS CPU for i-0123456789abcdef0`. EC2 CPU metrics can be absent for stopped/new instances or if the selected region/instance ID is wrong.
+-   Keep AWS credentials and other secrets out of source code,
+    screenshots, logs, and public repositories.
+-   Use least-privilege IAM permissions.
+-   The sample AWS policy is intended for read-only monitoring, not for
+    starting, stopping, or deleting infrastructure.
+-   Do not expose the development server directly to the public
+    internet.
+-   Before deployment, review authentication, authorization, input
+    validation, logging, and network access.
 
-AWS API usage may incur normal service charges in some circumstances. The app only calls read-only describe/metric APIs. See the official [Boto3 EC2 guide](https://docs.aws.amazon.com/boto3/latest/guide/ec2-example-managing-instances.html) and [CloudWatch metric API reference](https://docs.aws.amazon.com/boto3/latest/reference/services/cloudwatch/metric/get_statistics.html).
+## Current scope
 
-## Docker monitoring setup (optional)
+KANV currently combines assistant commands with basic AWS and Docker
+monitoring utilities. A documentation-grounded AI knowledge base,
+retrieval-augmented generation (RAG), automated remediation, and broader
+CI/CD integrations are possible future extensions and are not described
+as existing features here.
 
-1. Install and start Docker Desktop for Windows.
-2. Wait until Docker Desktop reports that the engine is running.
-3. Start KANV from the same Windows account. Click **Docker containers** or type `Check Docker containers`.
-4. If the SDK cannot connect, run `docker ps -a` in Command Prompt to confirm Docker is working, then restart KANV.
+## License
 
-KANV uses Docker's Python SDK only to list container metadata. It does not run shell commands or start, stop, delete, or modify containers. See the [Docker SDK documentation](https://docs.docker.com/reference/api/engine/sdk/).
-
-## API endpoints added
-
-- `GET /api/devops/health` — local app health
-- `GET /api/devops/aws/instances` — EC2 instance metadata (AWS credentials and region required)
-- `GET /api/devops/aws/cpu?instance_id=i-...` — CloudWatch CPU average over the last hour
-- `GET /api/devops/docker/containers` — local Docker container metadata
-
-These endpoints are intended for local development. Before any remote deployment, add authentication, authorization, rate limiting, CSRF protections where relevant, and production hosting. Do not expose this development app to the public internet as-is.
+No license has been specified yet. Add a `LICENSE` file before
+presenting this repository as open source.
